@@ -1,4 +1,4 @@
-# Ansible Role: disable-swap
+# Ansible Role: disable_swap
 
 Linux サーバの Swap を無効化します。
 
@@ -37,7 +37,7 @@ None.
 ```yaml
 - hosts: your-linux-servers
   roles:
-    - ktooi.disable-swap
+    - ktooi.disable_swap
 ```
 
 ## Authors

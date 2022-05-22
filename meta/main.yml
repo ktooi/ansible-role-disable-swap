@@ -2,7 +2,7 @@
 dependencies: []
 
 galaxy_info:
-  role_name: disable-swap
+  role_name: disable_swap
   author: ktooi
   description: Disable swap in Linux.
   license: "license (MIT)"
