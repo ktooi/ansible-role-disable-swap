@@ -1,0 +1,10 @@
+---
+# Specify a list of swaps to disable.
+# If disable_swap_list is not defined, all Swaps are targeted.
+# disable_swap_list: []
+
+# Specify the filename of the sysctl.
+disable_swap_sysctl_filename: "/etc/sysctl.d/99-disable-swap.conf"
+
+# Specifies whether to delete the swap file.
+disable_swap_enable_remove_swapfile: true

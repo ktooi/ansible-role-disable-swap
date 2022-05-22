@@ -1,0 +1,88 @@
+---
+# See also: https://www.reddit.com/r/linuxadmin/comments/flzx5r/ansible_how_to_disable_swap/
+
+- name: Show where the swap is mounted
+  shell: swapon -s | awk 'NR>=2{print $1}'
+  check_mode: false
+  changed_when: false
+  when: disable_swap_list is not defined
+  register: swap
+
+- name: List where the swap is mounted
+  set_fact:
+    disable_swap_list: >-
+      {%- set r = [] -%}
+      {%- for line in swap.stdout_lines -%}
+      {%-   if line != "" -%}
+      {%-     set _ = r.append(line) -%}
+      {%-   endif -%}
+      {%- endfor -%}
+      {{ r }}
+  when: disable_swap_list is not defined
+
+- name: Examine the stat of each swap
+  stat:
+    path: "{{ item }}"
+    get_checksum: false
+  with_items: "{{ disable_swap_list }}"
+  register: swap_stat
+  become: true
+
+- name: Disable swap permanently
+  mount:
+    path: none
+    src: "{{ item }}"
+    state: absent
+  with_items: "{{ disable_swap_list }}"
+  when: disable_swap_list | length > 0
+  become: true
+
+- name: Disable swap
+  shell: "swapoff {{ item }}"
+  when: disable_swap_list | length > 0
+  with_items: "{{ disable_swap_list }}"
+  become: true
+
+- name: List swap files
+  set_fact:
+    swap_file_list: >-
+      {%- set r = [] -%}
+      {%- for result in swap_stat.results -%}
+      {%-   if result.stat.device_type == 0 -%}
+      {%-     set _ = r.append(result.item) -%}
+      {%-   endif -%}
+      {%- endfor -%}
+      {{ r }}
+
+- name: Remove all swap files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ swap_file_list }}"
+  when: "{{ disable_swap_enable_remove_swapfile }}"
+  become: true
+
+#- name: List swap partitions
+#  set_fact:
+#    swap_partition_list: >-
+#      {%- set r = [] -%}
+#      {%- for result in swap_stat.results -%}
+#      {%-   if result.stat.device_type == 82 -%}
+#      {%-     set _ = r.append(result.item) -%}
+#      {%-   endif -%}
+#      {%- endfor -%}
+#      {{ r }}
+#
+#- name: Delete all swap partitions
+#  file:
+#    path: "{{ item }}"
+#    state: absent
+#  with_items: "{{ swap_partition_list }}"
+#  become: true
+
+- name: Set vm.swappiness to 0
+  sysctl:
+    name: vm.swappiness
+    value: 0
+    sysctl_file: "{{ disable_swap_sysctl_filename }}"
+  become: true
