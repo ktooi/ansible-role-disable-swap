@@ -26,7 +26,7 @@ disable_swap_list: []
 無効化する swap のファイル名やデバイス名をリストで指定してください。
 `disable_swap_list` が定義されていない場合は、全ての Swap が無効化の対象になります。
 
-その他の variables は [](defaults/main.yml) を参照してください。
+その他の variables は [defaults/main.yml](defaults/main.yml) を参照してください。
 
 ## Dependencies
 
